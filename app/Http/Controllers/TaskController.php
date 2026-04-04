@@ -28,4 +28,10 @@ public function store(Request $request) {
 
     return redirect()->route('tasks.index')->with('success', 'Tâche créée avec succés!');
 }
+
+    public function destroy(Task $task) {
+        $task->delete();
+        return redirect()->route('tasks.index')->with('success', 'Tâche supprimée avec succès!');
+    }
 }
+

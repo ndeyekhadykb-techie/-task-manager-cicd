@@ -69,7 +69,7 @@
                     </svg>
                 </a>
 
-                <form action="#" method="POST" class="inline">
+                <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" onclick="return confirm('Supprimer ?')" class="text-red-500 hover:text-red-700 transition-colors">
