@@ -7,24 +7,20 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    public function index() {
-    $tasks = Task::orderBy('created_at', 'desc')->get();
-    return view('tasks.index', compact('tasks'));
-}
+    public function index(Request $request) {
+        $status = $request->query('status');
+        $allTasks = Task::all();
+
+        $query = Task::orderBy('created_at', 'desc');
+        if ($status && in_array($status, ['todo', 'in_progress', 'done'])) {
+            $query->where('status', $status);
+        }
+        $tasks = $query->get();
+
+        return view('tasks.index', compact('tasks', 'allTasks', 'status'));
+    }
 
 
-    public function create() {
-    return view('tasks.create');
-}
-
-public function store(Request $request) {
-    $request->validate([
-        'title' => 'required|max:255',
-        'status' => 'required|in:todo,in_progress,done',
-        'priority' => 'required|in:low,medium,high',
-    ]);
-
-    Task::create($request->all());
 
     return redirect()->route('tasks.index')->with('success', 'Tâche créée avec succés!');
 }
@@ -35,6 +31,7 @@ public function store(Request $request) {
 public function edit(Task $task): View
 {
     return view('tasks.edit', compact('task'));
+
 }
 
 /**
