@@ -57,3 +57,4 @@ public function update(Request $request, Task $task): RedirectResponse
         ->with('success', 'Tâche mise à jour avec succès.');
 }
 }
+
