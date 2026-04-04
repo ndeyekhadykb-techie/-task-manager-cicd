@@ -18,12 +18,13 @@ class TaskController extends Controller
         $tasks = $query->get();
 
         return view('tasks.index', compact('tasks', 'allTasks', 'status'));
+            return redirect()->route('tasks.index')->with('success', 'Tâche créée avec succés!');
     }
 
 
 
-    return redirect()->route('tasks.index')->with('success', 'Tâche créée avec succés!');
-}
+
+
 
  /**
  * Affiche le formulaire de modification
@@ -55,3 +56,10 @@ public function update(Request $request, Task $task): RedirectResponse
 }
 }
 
+
+
+
+public function show(Task $task){
+
+    return view('tasks.show', compact('task'));
+}

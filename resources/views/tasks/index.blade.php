@@ -92,12 +92,17 @@
                     @forelse($tasks as $task)
                     <tr class="bg-white hover:bg-gray-50/50 transition-colors">
 
-                        <td class="px-8 py-6">
-                            <div class="text-lg font-bold text-gray-800">{{ $task->title }}</div>
-                            @if($task->description)
-                                <div class="text-sm text-gray-400 mt-1 italic">{{ $task->description }}</div>
-                            @endif
-                        </td>
+                       {{-- Dans ton index.blade.php, remplace la ligne du titre par celle-ci --}}
+<td class="px-6 py-4">
+    <a href="{{ route('tasks.show', $task->id) }}" class="group block">
+        <div class="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+            {{ $task->title }}
+        </div>
+        <div class="text-sm text-gray-500 truncate max-w-xs">
+            {{ $task->description }}
+        </div>
+    </a>
+</td>
 
                         <td class="px-8 py-6">
                             @if($task->status === 'todo')
