@@ -90,10 +90,10 @@
             <label for="due_date" class="block text-sm font-medium text-gray-700 mb-1">
                 Date limite
             </label>
-            <input type="date" id="due_date" name="due_date"
-                   value="{{ old('due_date', $task->due_date?->format('Y-m-d')) }}"
-                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm
-                          focus:outline-none focus:ring-2 focus:ring-blue-500">
+           {{-- Remplace ton ancien input par celui-ci --}}
+<input type="date" id="due_date" name="due_date"
+       value="{{ old('due_date', $task->due_date ? \Carbon\Carbon::parse($task->due_date)->format('Y-m-d') : '') }}"
+       class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
         {{-- Boutons --}}
