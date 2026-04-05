@@ -1,0 +1,100 @@
+name: Laravel CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1 : Tests & Analyse (Partie 2.1, 2.2, 2.3)
+  # ─────────────────────────────────────────────
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        [cite_start]php-version: ['8.2'] 
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: laravel
+          MYSQL_USER: laravel
+          MYSQL_PASSWORD: secret
+          MYSQL_ROOT_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, pdo_mysql, bcmath, gd
+          [cite_start]coverage: xdebug # Nécessaire pour le rapport de couverture [cite: 93]
+
+      - name: Configure cache for vendor/
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          [cite_start]restore-keys: composer- [cite: 70]
+
+      - name: Install Composer dependencies
+        [cite_start]run: composer install --no-interaction --prefer-dist --optimize-autoloader [cite: 70]
+
+      - name: Prepare Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          # Configuration rapide pour pointer vers le service MySQL du workflow
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=task/' .env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=laravel/' .env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=secret/' .env
+
+      - name: Run PHPStan
+        [cite_start]run: vendor/bin/phpstan analyse [cite: 118, 119]
+
+      - name: Run PHP CS Fixer
+        [cite_start]run: vendor/bin/php-cs-fixer fix --dry-run --diff [cite: 120, 121]
+
+      - name: Run tests with coverage
+     
+        run: php artisan test --coverage-clover=coverage.xml --min=70 
+
+  # ─────────────────────────────────────────────
+  # JOB 2 : Build Frontend (Partie 2.4)
+  # ─────────────────────────────────────────────
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          [cite_start]node-version: '20' [cite: 131]
+
+      - name: Install dependencies
+        [cite_start]run: npm ci [cite: 132]
+
+      - name: Build assets
+        [cite_start]run: npm run build [cite: 133]
+
+      - name: Upload artifacts
+        [cite_start]uses: actions/upload-artifact@v3
+        with:
+          [cite_start]name: frontend-build [cite: 136]
+          [cite_start]path: public/build [cite: 137]
