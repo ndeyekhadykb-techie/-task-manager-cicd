@@ -52,11 +52,7 @@ class TaskController extends Controller
             ->with('success', 'Tâche créée avec succès.');
     }
 
-    //  Afficher une tâche
-    public function show(Task $task)
-    {
-        return view('tasks.show', compact('task'));
-    }
+  
 
     // 📌 Formulaire modification
     public function edit(Task $task)
@@ -75,7 +71,7 @@ class TaskController extends Controller
             'due_date'    => 'nullable|date',
         ]);
 
-
+    }
 
 
 public function show(Task $task){

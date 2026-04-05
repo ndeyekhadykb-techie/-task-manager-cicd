@@ -1,0 +1,23 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5 # Niveau 5 minimum requis 
+    
+    paths:
+        - app      # Requis [cite: 113]
+        - config   # Requis [cite: 114]
+        - database # Requis  (englobe factories et seeders)
+        - routes   # Requis [cite: 116]
+
+    ignoreErrors:
+        - '#Access to constant ATTR_SSL_CA on an unknown class Pdo\\Mysql#'
+
+    excludePaths:
+        - vendor
+        - storage
+        - bootstrap/cache
+        - node_modules
+        - public
+
+    tmpDir: storage/.phpstan
