@@ -39,14 +39,14 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
           extensions: mbstring, pdo_mysql, bcmath, gd
-          coverage: xdebug 
+          coverage: xdebug
 
       - name: Configure cache for vendor/
         uses: actions/cache@v3
         with:
           path: vendor
           key: composer-${{ hashFiles('composer.lock') }}
-          restore-keys: composer- 
+          restore-keys: composer-
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs
@@ -61,32 +61,42 @@ jobs:
           sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=secret/' .env
 
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse 
+        run: vendor/bin/phpstan analyse
 
       - name: Run PHP CS Fixer
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff 
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
 
       - name: Run tests with coverage
-        run: php artisan test --coverage-clover=coverage.xml --min=70 || true
+        run: php artisan test --coverage --min=70
 
   frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' 
+          node-version: '20'
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm ci 
+        run: npm ci
 
       - name: Build assets
-        run: npm run build 
+        run: npm run build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: frontend-build 
+          name: frontend-build
           path: public/build
+          if-no-files-found: error
