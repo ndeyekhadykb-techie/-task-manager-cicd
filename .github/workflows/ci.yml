@@ -63,7 +63,7 @@ jobs:
         run: vendor/bin/phpstan analyse
 
       - name: Run PHP CS Fixer
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+        run: vendor/bin/php-cs-fixer fix --diff
 
       - name: Run tests with coverage
         run: php artisan test --coverage --min=70
