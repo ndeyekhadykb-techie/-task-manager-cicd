@@ -17,7 +17,7 @@ parameters:
         - vendor
         - storage
         - bootstrap/cache
-        - node_modules
+        - node_modules (?)
         - public
 
     tmpDir: storage/.phpstan
