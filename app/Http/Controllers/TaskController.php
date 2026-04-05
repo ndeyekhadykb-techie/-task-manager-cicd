@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class TaskController extends Controller
 {
-    //  Liste des tâches
-    public function index(Request $request)
+    // Liste des tâches
+    public function index(Request $request): View
     {
         $status = $request->query('status');
         $allTasks = Task::all();
@@ -23,16 +24,16 @@ class TaskController extends Controller
         $tasks = $query->get();
 
         return view('tasks.index', compact('tasks', 'allTasks', 'status'));
-            return redirect()->route('tasks.index')->with('success', 'Tâche créée avec succés!');
+        // L'erreur était ici : tu avais un deuxième return redirect juste après le premier return view.
     }
 
-    //  Afficher formulaire création
-    public function create()
+    // Afficher formulaire création
+    public function create(): View
     {
         return view('tasks.create');
     }
 
-    //  Enregistrer nouvelle tâche
+    // Enregistrer nouvelle tâche
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -43,8 +44,6 @@ class TaskController extends Controller
             'due_date'    => 'nullable|date',
         ]);
 
-
-
         Task::create($request->all());
 
         return redirect()
@@ -52,15 +51,13 @@ class TaskController extends Controller
             ->with('success', 'Tâche créée avec succès.');
     }
 
-  
-
-    // 📌 Formulaire modification
-    public function edit(Task $task)
+    // Formulaire modification
+    public function edit(Task $task): View
     {
         return view('tasks.edit', compact('task'));
     }
 
-    //  Mise à jour
+    // Mise à jour
     public function update(Request $request, Task $task): RedirectResponse
     {
         $request->validate([
@@ -71,12 +68,6 @@ class TaskController extends Controller
             'due_date'    => 'nullable|date',
         ]);
 
-    }
-
-
-public function show(Task $task){
-
-    return view('tasks.show', compact('task'));
         $task->update($request->all());
 
         return redirect()
@@ -84,7 +75,12 @@ public function show(Task $task){
             ->with('success', 'Tâche mise à jour avec succès.');
     }
 
-    //  Supprimer
+    public function show(Task $task): View
+    {
+        return view('tasks.show', compact('task'));
+    }
+
+    // Supprimer
     public function destroy(Task $task): RedirectResponse
     {
         $task->delete();
