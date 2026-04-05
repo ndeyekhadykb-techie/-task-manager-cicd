@@ -23,6 +23,7 @@ class TaskController extends Controller
         $tasks = $query->get();
 
         return view('tasks.index', compact('tasks', 'allTasks', 'status'));
+            return redirect()->route('tasks.index')->with('success', 'Tâche créée avec succés!');
     }
 
     //  Afficher formulaire création
@@ -41,6 +42,8 @@ class TaskController extends Controller
             'priority'    => 'required|in:low,medium,high',
             'due_date'    => 'nullable|date',
         ]);
+
+
 
         Task::create($request->all());
 
@@ -72,6 +75,12 @@ class TaskController extends Controller
             'due_date'    => 'nullable|date',
         ]);
 
+
+
+
+public function show(Task $task){
+
+    return view('tasks.show', compact('task'));
         $task->update($request->all());
 
         return redirect()
