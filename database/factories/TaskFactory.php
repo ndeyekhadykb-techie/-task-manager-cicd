@@ -16,7 +16,7 @@ class TaskFactory extends Factory
             'description' => $this->faker->optional()->paragraph(),
             'status'      => $this->faker->randomElement(['todo', 'in_progress', 'done']),
             'priority'    => $this->faker->randomElement(['low', 'medium', 'high']),
-            'due_date'    => $this->faker->optional()->dateTimeBetween('now', '+1 year')->format('Y-m-d'),
+            'due_date'    => $this->faker->optional()->dateTimeBetween('now', '+1 year')?->format('Y-m-d'),
         ];
     }
 }
