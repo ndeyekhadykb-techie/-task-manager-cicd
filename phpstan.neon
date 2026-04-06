@@ -10,9 +10,6 @@ parameters:
         - database # Requis  (englobe factories et seeders)
         - routes   # Requis [cite: 116]
 
-    ignoreErrors:
-        - '#Access to constant ATTR_SSL_CA on an unknown class Pdo\\Mysql#'
-
     excludePaths:
         - vendor
         - storage
