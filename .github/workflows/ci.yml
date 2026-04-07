@@ -37,20 +37,31 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+
+          extensions: mbstring, pdo_mysql, bcmath, gd, pcov
+          coverage: pcov
+          ini-values: pcov.enabled=1, pcov.directory=app
+
           extensions: mbstring, pdo_mysql, bcmath, gd
           coverage: xdebug
+
 
       - name: Configure cache for vendor/
         uses: actions/cache@v3
         with:
           path: vendor
+
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
           key: composer-${{ hashFiles('composer.lock') }}
           restore-keys: composer-
+
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs
 
-      - name: Prepare Environment
+      - name: Prepare environment
         run: |
           cp .env.example .env
           php artisan key:generate
@@ -59,17 +70,35 @@ jobs:
           sed -i 's/DB_USERNAME=.*/DB_USERNAME=laravel/' .env
           sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=secret/' .env
 
+      - name: Run database migrations
+        run: php artisan migrate --force
+
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse
 
       - name: Run PHP CS Fixer
+
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+
+      - name: Run tests with coverage
+        run: php artisan test --coverage-clover=coverage.xml --min=80
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 7
+
         run: vendor/bin/php-cs-fixer fix --diff
 
       - name: Run tests with coverage
         run: php artisan test --coverage --min=70
 
+
   frontend:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -77,15 +106,25 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
+
+          node-version: '20.x'
+
+      - name: Configure cache for node_modules/
+
           node-version: '20'
 
       - name: Cache Node.js modules
+
         uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+          restore-keys: ${{ runner.os }}-node-
+
           restore-keys: |
             ${{ runner.os }}-node-
+
 
       - name: Install dependencies
         run: npm ci
@@ -93,9 +132,17 @@ jobs:
       - name: Build assets
         run: npm run build
 
+
+      - name: Upload frontend build
+
       - name: Upload artifacts
+
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
           path: public/build
+
+          retention-days: 7
+
           if-no-files-found: error
+
