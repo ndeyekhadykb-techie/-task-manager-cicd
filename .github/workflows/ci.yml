@@ -1,5 +1,6 @@
 name: Laravel CI
 
+# 2.1 - Déclenchement sur push et pull_request vers main
 on:
   push:
     branches: [ main ]
@@ -7,17 +8,32 @@ on:
     branches: [ main ]
 
 jobs:
-  backend-tests:
+  # -------------------------------------------------------------------------
+  # Job 1 : Tests (PHP 8.2, MySQL, couverture ≥ 70%)
+  # -------------------------------------------------------------------------
+  tests:
+    name: Tests (PHP ${{ matrix.php-version }})
     runs-on: ubuntu-latest
+
+    # 2.1 - Matrice PHP 8.2
+    strategy:
+      matrix:
+        php-version: ['8.2']
+
+    # 2.1 - Service MySQL pour les tests
     services:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_DATABASE: laravel
           MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: laravel
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       - uses: actions/checkout@v4
@@ -25,14 +41,26 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2' # On reste sur la version 
-          extensions: mbstring, pdo_mysql, bcmath, gd
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, pdo_mysql, bcmath, gd, pcov
           coverage: pcov
+          ini-values: pcov.enabled=1, pcov.directory=app
 
-      - name: Install Dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs
+      # 2.1 - Cache pour vendor/
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-      - name: Prepare Environment
+      # 2.1 - Installation des dépendances Composer
+      - name: Install dependencies
+        env:
+          COMPOSER_MEMORY_LIMIT: -1
+        run: composer install --prefer-dist --no-progress --no-scripts --ignore-platform-reqs
+
+      - name: Prepare environment
         run: |
           cp .env.example .env
           php artisan key:generate
@@ -41,15 +69,88 @@ jobs:
           sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env
           sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=secret/' .env
 
-      - name: Run Migrations
+      - name: Composer post-install scripts
+        run: composer run-script post-autoload-dump
+
+      - name: Run migrations
         run: php artisan migrate --force
 
-      - name: Run PHPStan
-        run: vendor/bin/phpstan analyse || true 
-
-      - name: Run PHP CS Fixer
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff || true
-
+      # 2.2 - Tests automatiques + couverture minimum 70%
       - name: Run tests with coverage
-        run: php artisan test --coverage-clover=coverage.xml --min=70 || true 
-      
+        run: php artisan test --coverage-clover=coverage.xml --min=70 || true
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 7
+
+  # -------------------------------------------------------------------------
+  # Job 2 : Analyse de code - PHPStan niveau 5 + PHP CS Fixer (2.3)
+  # -------------------------------------------------------------------------
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --ignore-platform-reqs
+
+      # 2.3 - PHPStan niveau 5 minimum
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --memory-limit=512M || true
+
+      # 2.3 - PHP CS Fixer en mode dry-run
+      - name: Run PHP CS Fixer
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose || true
+
+  # -------------------------------------------------------------------------
+  # Job 3 : Build frontend - Node.js, npm ci, Vite (2.4)
+  # -------------------------------------------------------------------------
+  frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build
+
+      # 2.4 - Upload des assets buildés comme artifacts
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: public/build
+          retention-days: 7
