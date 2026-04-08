@@ -1,58 +1,448 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Task Manager - Application Laravel avec CI/CD
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<div align="center">
 
-## About Laravel
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Laravel](https://img.shields.io/badge/Laravel-11.x-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4.svg)](#)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**Application professionnelle de gestion de tâches avec pipeline CI/CD complet**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+[Installation](#installation) • [Démarrage](#démarrage-rapide) • [Architecture](#architecture) • [Tests](#tests) • [CI/CD](#pipeline-cicd) • [Contribution](#contribution)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+</div>
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 📋 À propos
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**Task Manager** est une application Laravel moderne dédiée à la gestion de tâches. Elle démontre les bonnes pratiques DevOps en mettant en place :
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+- ✅ Une **architecture MVC** propre et scalable (Laravel 11)
+- ✅ Un **pipeline CI/CD complet** avec GitHub Actions
+- ✅ Des **tests unitaires et fonctionnels** (PHPUnit)
+- ✅ Une **analyse de code statique** (PHPStan)
+- ✅ Des **contrôles de qualité** automatisés à chaque commit
+- ✅ Un **workflow collaboratif** avec Conventional Commits
 
-## Agentic Development
+### Fonctionnalités
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+L'application permet aux utilisateurs de :
+
+- 🎯 **Créer** des tâches (titre, description, statut, priorité, échéance)
+- ✏️ **Modifier** les tâches existantes
+- 🗑️ **Supprimer** des tâches
+- 📊 **Lister** toutes les tâches avec filtres par statut
+- 👁️ **Visualiser** les détails d'une tâche
+
+---
+
+## 🚀 Démarrage rapide
+
+### Prérequis
+
+- **PHP** 8.2 ou supérieur
+- **Composer** (gestionnaire de paquets PHP)
+- **Node.js** 18+ et **npm** (pour les assets frontend)
+- **MySQL** ou **SQLite** pour la base de données
+- **Git** pour le contrôle de version
+
+### Installation
+
+1. **Clonez le repository**
+   ```bash
+   git clone https://github.com/votre-username/task-manager-cicd.git
+   cd task-manager-cicd
+   ```
+
+2. **Installez les dépendances PHP**
+   ```bash
+   composer install
+   ```
+
+3. **Installez les dépendances Node.js**
+   ```bash
+   npm install
+   ```
+
+4. **Configurez l'environnement**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+5. **Configurez la base de données** (dans le fichier `.env`)
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=task_manager
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+
+6. **Exécutez les migrations**
+   ```bash
+   php artisan migrate
+   ```
+
+7. **Compilez les assets frontend**
+   ```bash
+   npm run dev
+   ```
+
+### Lancer l'application
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Accédez à : **http://localhost:8000**
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 📁 Architecture
 
-## Code of Conduct
+### Structure du projet
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```
+task-manager-cicd/
+├── app/
+│   ├── Http/
+│   │   └── Controllers/
+│   │       ├── TaskController.php    # Logique métier des tâches
+│   │       └── Controller.php        # Classe de base
+│   └── Models/
+│       ├── Task.php                  # Modèle Eloquent pour les tâches
+│       └── User.php                  # Modèle Eloquent pour les utilisateurs
+│
+├── database/
+│   ├── migrations/                   # Scripts de création de BD
+│   ├── factories/                    # Générateurs de données de test
+│   └── seeders/                      # Population initial de la BD
+│
+├── resources/
+│   ├── css/                          # Feuilles de style
+│   ├── js/                           # Scripts JavaScript
+│   └── views/
+│       └── tasks/                    # Templates Blade pour les tâches
+│
+├── routes/
+│   └── web.php                       # Définition des routes HTTP
+│
+├── tests/
+│   ├── Feature/                      # Tests fonctionnels (intégration)
+│   └── Unit/                         # Tests unitaires
+│
+├── .github/workflows/                # Configuration CI/CD (GitHub Actions)
+├── phpunit.xml                       # Configuration PHPUnit
+├── phpstan.neon                      # Configuration PHPStan
+└── vite.config.js                    # Configuration Vite (build frontend)
+```
 
-## Security Vulnerabilities
+### Base de données
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+#### Table `tasks`
+| Colonne | Type | Description |
+|---------|------|-------------|
+| `id` | INT PRIMARY KEY | Identifiant unique |
+| `title` | VARCHAR(255) | Titre de la tâche |
+| `description` | TEXT | Description complète |
+| `status` | ENUM | 'todo', 'in_progress', 'done' |
+| `priority` | ENUM | 'low', 'medium', 'high' |
+| `due_date` | DATE | Date limite |
+| `user_id` | INT FK | Propriétaire de la tâche |
+| `created_at` | TIMESTAMP | Date création |
+| `updated_at` | TIMESTAMP | Date modification |
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🧪 Tests
+
+### Exécuter tous les tests
+
+```bash
+php artisan test
+```
+
+### Exécuter les tests unitaires uniquement
+
+```bash
+php artisan test --filter Unit
+```
+
+### Exécuter les tests fonctionnels uniquement
+
+```bash
+php artisan test --filter Feature
+```
+
+### Générer un rapport de couverture
+
+```bash
+php artisan test --coverage
+```
+
+### Fichiers de test
+
+- **Tests unitaires** : `tests/Unit/` - Testent les fonctions isolées
+- **Tests fonctionnels** : `tests/Feature/` - Testent les workflows complets
+
+---
+
+## 🔍 Qualité du code
+
+### PHPStan (Analyse statique)
+
+Détecte les erreurs de type et les problèmes courants :
+
+```bash
+./vendor/bin/phpstan analyse
+```
+
+**Configuration** : `phpstan.neon`
+
+---
+
+## 🔄 Pipeline CI/CD
+
+### Workflow GitHub Actions
+
+Le pipeline s'exécute **automatiquement** à chaque :
+- 📤 **Push** sur une branche
+- 🔀 **Pull Request** vers `main`
+
+### Étapes du workflow
+
+```yaml
+1. Checkout du code
+2. Setup PHP 8.2
+3. Installation des dépendances (Composer)
+4. Cache des dépendances
+5. Exécution des tests (PHPUnit)
+6. Analyse du code (PHPStan)
+7. Rapport de build
+```
+
+### Fichiers de configuration
+
+- **Workflow principal** : `.github/workflows/ci.yml`
+- **Configuration PHPUnit** : `phpunit.xml`
+- **Configuration PHPStan** : `phpstan.neon`
+
+### Badges
+
+Ajoutez ce badge dans votre profil GitHub :
+```markdown
+[![Build Status](https://github.com/votre-username/task-manager-cicd/actions/workflows/ci.yml/badge.svg)](https://github.com/votre-username/task-manager-cicd/actions)
+```
+
+---
+
+## 🔧 Configuration du projet
+
+### Variables d'environnement (`.env`)
+
+```env
+APP_NAME=TaskManager
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=task_manager
+DB_USERNAME=root
+DB_PASSWORD=
+
+CACHE_DRIVER=file
+SESSION_DRIVER=file
+QUEUE_CONNECTION=sync
+```
+
+### Composer Scripts
+
+Raccourcis disponibles dans `composer.json` :
+
+```bash
+composer test           # Exécute PHPUnit
+composer stan          # Lance PHPStan
+composer lint          # Vérifie le format du code
+```
+
+---
+
+## 📝 Workflow Git et Contribution
+
+### Modèle de branching
+
+```
+main (production)
+├── develop (intégration)
+│   ├── feature/auth-users
+│   ├── feature/task-filters
+│   ├── fix/task-deletion-bug
+│   └── ...
+```
+
+### Conventional Commits
+
+Utilisez un format de commit standardisé :
+
+```bash
+git commit -m "feat: ajouter filtrage des tâches par priorité"
+git commit -m "fix: corriger le bug de suppression"
+git commit -m "docs: mettre à jour le README"
+git commit -m "test: ajouter tests pour TaskController"
+```
+
+**Format** : `<type>(<scope>): <message>`
+
+Types acceptés : `feat`, `fix`, `docs`, `test`, `refactor`, `perf`, `chore`
+
+### Process de contribution
+
+1. **Créez une branche** depuis `develop`
+   ```bash
+   git checkout develop
+   git pull origin develop
+   git checkout -b feature/ma-fonctionnalite
+   ```
+
+2. **Développez votre feature**
+   ```bash
+   git add .
+   git commit -m "feat: description de ma feature"
+   ```
+
+3. **Poussez vers le serveur**
+   ```bash
+   git push origin feature/ma-fonctionnalite
+   ```
+
+4. **Ouvrez une Pull Request**
+   - Vers la branche `develop`
+   - Décrivez vos changements
+   - Attendez le code review
+
+5. **Après approbation**
+   ```bash
+   git checkout develop
+   git pull origin develop
+   git merge feature/ma-fonctionnalite
+   git push origin develop
+   ```
+
+---
+
+## 📚 Routes et Endpoints
+
+### Routes Web
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/tasks` | Lister toutes les tâches |
+| GET | `/tasks/create` | Formulaire de création |
+| POST | `/tasks` | Créer une tâche |
+| GET | `/tasks/{id}` | Voir les détails |
+| GET | `/tasks/{id}/edit` | Formulaire d'édition |
+| PUT | `/tasks/{id}` | Mettre à jour |
+| DELETE | `/tasks/{id}` | Supprimer |
+
+Voir `routes/web.php` pour le détail complet.
+
+---
+
+## 🐛 Dépannage
+
+### Erreur : "Class 'App\Models\Task' not found"
+
+```bash
+php artisan migrate:reset
+php artisan migrate
+```
+
+### Erreur : "No application encryption key has been specified"
+
+```bash
+php artisan key:generate
+```
+
+### Les assets ne se mettent pas à jour
+
+```bash
+npm run build
+# ou
+npm run dev
+```
+
+### Erreur de permission sur `storage/`
+
+```bash
+chmod -R 775 storage/
+chmod -R 775 bootstrap/cache/
+```
+
+---
+
+## 📊 Statistiques du projet
+
+- **Langage** : PHP 8.2+ avec Laravel 11
+- **Frontend** : Blade Templates + Vue.js (optionnel)
+- **Tests** : PHPUnit
+- **Couverture de code** : À mettre à jour
+- **Analyses** : PHPStan Level 5
+- **Licence** : MIT
+
+---
+
+## 📖 Documentation supplémentaire
+
+- 📘 [Documentation Laravel officielle](https://laravel.com/docs)
+- 🧪 [PHPUnit Documentation](https://phpunit.de/documentation.html)
+- 🔍 [PHPStan Handbook](https://phpstan.org/user-guide)
+- 🔄 [GitHub Actions Docs](https://docs.github.com/actions)
+- 📝 [Conventional Commits](https://www.conventionalcommits.org/)
+
+---
+
+## 👥 Contribution
+
+Les contributions sont bienvenues ! Veuillez :
+
+1. Forker le repository
+2. Créer une branche pour votre feature (`git checkout -b feature/AmazingFeature`)
+3. Committer vos changements (`git commit -m 'feat: Add some AmazingFeature'`)
+4. Pousser vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
+
+### Code de conduite
+
+Tous les contributeurs doivent respecter l'intégrité du code et la professionnalité lors des interactions.
+
+---
+
+## 📄 Licence
+
+Ce projet est licencié sous la [Licence MIT](LICENSE). Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+---
+
+## 📧 Support
+
+Pour toute question ou problème :
+- 📤 Ouvrez une issue sur GitHub
+- 💬 Discutez dans les discussions du projet
+- 📨 Contactez l'équipe de développement
+
+---
+
+<div align="center">
+
+**Fait avec ❤️ pour la communauté DevOps Laravel**
+
+Étoile ⭐ ce projet si vous l'avez trouvé utile !
+
+</div>
