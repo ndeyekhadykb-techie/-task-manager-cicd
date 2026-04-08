@@ -9,6 +9,7 @@ class Task extends Model
 {
     use HasFactory;
 
+
     protected $fillable = [
         'title',
         'description',
@@ -23,4 +24,7 @@ class Task extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    protected $fillable = ['title', 'description', 'status', 'priority', 'due_date'];
+
 }
