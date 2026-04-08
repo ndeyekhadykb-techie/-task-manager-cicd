@@ -25,6 +25,6 @@ class Task extends Model
         'updated_at' => 'datetime',
     ];
 
-    protected $fillable = ['title', 'description', 'status', 'priority', 'due_date'];
+    
 
 }

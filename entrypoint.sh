@@ -30,7 +30,7 @@ echo "Exécution des migrations..."
 php artisan migrate --force
 
 echo "Configuration des permissions..."
-chown -R task-manager:task-manager /var/www/html/storage /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 echo "Exécution des scripts Composer post-autoload..."

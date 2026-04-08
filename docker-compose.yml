@@ -26,8 +26,8 @@ services:
       test: ["CMD", "php", "-r", "$$c=@fsockopen('127.0.0.1',9000);if($$c){fclose($$c);exit(0);}exit(1);"]
       interval: 5s
       timeout: 3s
-      retries: 5
-      start_period: 120s
+      retries: 10
+      start_period: 180s   # ← Change 120s en 180s
 
   # Serveur Web Nginx
   nginx:

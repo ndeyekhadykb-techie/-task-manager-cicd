@@ -14,7 +14,7 @@ COPY . .
 RUN composer dump-autoload --optimize --classmap-authoritative
 
 # Stage 2: Production
-FROM php:8.2-fpm
+FROM php:8.4-fpm
 
 # Installation des extensions PHP + outils (git, unzip, gosu, mysql-client)
 RUN apt-get update && apt-get install -y \
