@@ -11,9 +11,10 @@ services:
       context: .
       dockerfile: Dockerfile
     image: task-manager-app:latest
-    container_name: task-manager-nginx-v1
+    container_name: task-manager-app-v1
     restart: unless-stopped
     working_dir: /var/www/html
+    env_file: .env
     volumes:
       - ./:/var/www/html
     networks:
@@ -28,7 +29,7 @@ services:
       retries: 5
       start_period: 120s
 
-  # Serveur Web Nginx (démarre avec l'app ; en cas de 502, attendre 1–2 min que PHP-FPM soit prêt)
+  # Serveur Web Nginx
   nginx:
     image: nginx:alpine
     container_name: task-manager-nginx-v1
@@ -85,14 +86,14 @@ services:
       timeout: 5s
       retries: 5
 
-      # Volumes persistants
+# Volumes persistants
 volumes:
   mysql_data:
     driver: local
   redis_data:
     driver: local
 
-# Réseau isolé
+# Réseau isolé - ✅ C'EST CE QUI MANQUAIT !
 networks:
-  todo:
+  task-manager:
     driver: bridge
